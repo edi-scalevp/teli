@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate Teli Icons</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #1a1a2e; color: white; }
+        canvas { display: block; margin: 10px auto; border: 1px solid #333; }
+        .icon-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .icon-item { text-align: center; }
+        button { padding: 10px 20px; margin: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Teli Icon Generator</h1>
+    <p>Click "Generate All" then right-click each canvas and "Save image as..." to save the icons.</p>
+    <button onclick="generateAll()">Generate All Icons</button>
+    <div class="icon-row" id="icons"></div>
+
+    <script>
+        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+
+        function generateIcon(size) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#6366f1');
+            gradient.addColorStop(1, '#4f46e5');
+
+            // Rounded rectangle background
+            const radius = size * 0.2;
+            ctx.beginPath();
+            ctx.roundRect(0, 0, size, size, radius);
+            ctx.fillStyle = gradient;
+            ctx.fill();
+
+            // Draw movie clapper emoji
+            ctx.font = `${size * 0.6}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🎬', size / 2, size / 2);
+
+            return canvas;
+        }
+
+        function generateAll() {
+            const container = document.getElementById('icons');
+            container.innerHTML = '';
+
+            sizes.forEach(size => {
+                const div = document.createElement('div');
+                div.className = 'icon-item';
+
+                const canvas = generateIcon(size);
+                const label = document.createElement('p');
+                label.textContent = `icon-${size}.png`;
+
+                div.appendChild(canvas);
+                div.appendChild(label);
+                container.appendChild(div);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Teli - Your Movie Rankings</title>
+    <meta name="description" content="Rate and rank movies with a comparison-based Elo system. See your true preferences emerge from your choices.">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Teli">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+</head>
+<body>
+    <div id="app">
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="screen active">
+            <div class="loading-content">
+                <div class="logo-large">🎬</div>
+                <h1>Teli</h1>
+                <p>Your Personal Movie Rankings</p>
+                <div class="loader"></div>
+            </div>
+        </div>
+
+        <!-- Onboarding Screen -->
+        <div id="onboarding-screen" class="screen">
+            <div class="onboarding-content">
+                <div class="onboarding-slide active" data-slide="1">
+                    <div class="slide-icon">🎬</div>
+                    <h2>Welcome to Teli</h2>
+                    <p>Track and rank every movie you watch with a personalized scoring system</p>
+                </div>
+                <div class="onboarding-slide" data-slide="2">
+                    <div class="slide-icon">⚖️</div>
+                    <h2>Compare Movies</h2>
+                    <p>Instead of arbitrary ratings, compare movies to each other. "Is this better than...?"</p>
+                </div>
+                <div class="onboarding-slide" data-slide="3">
+                    <div class="slide-icon">🏆</div>
+                    <h2>Your True Rankings</h2>
+                    <p>Get a personalized 1-10 score for every movie based on YOUR preferences</p>
+                </div>
+                <div class="onboarding-dots">
+                    <span class="dot active" data-slide="1"></span>
+                    <span class="dot" data-slide="2"></span>
+                    <span class="dot" data-slide="3"></span>
+                </div>
+                <button id="onboarding-next" class="btn-primary">Next</button>
+                <button id="onboarding-skip" class="btn-text">Skip</button>
+            </div>
+        </div>
+
+        <!-- Main App -->
+        <div id="main-app" class="screen">
+            <!-- Header -->
+            <header class="app-header">
+                <h1 class="header-logo">🎬 Teli</h1>
+                <div class="header-stats">
+                    <span id="movie-count">0</span> movies ranked
+                </div>
+            </header>
+
+            <!-- Views Container -->
+            <main class="views-container">
+                <!-- Your List View -->
+                <div id="list-view" class="view active">
+                    <div class="view-header">
+                        <h2>Your Rankings</h2>
+                        <div class="view-filters">
+                            <button class="filter-btn active" data-filter="all">All</button>
+                            <button class="filter-btn" data-filter="recent">Recent</button>
+                            <button class="filter-btn" data-filter="top">Top 10</button>
+                        </div>
+                    </div>
+                    <div id="ranked-movies" class="movie-list">
+                        <div class="empty-state">
+                            <div class="empty-icon">🎬</div>
+                            <h3>No movies ranked yet</h3>
+                            <p>Tap + to add your first movie</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search/Add View -->
+                <div id="search-view" class="view">
+                    <div class="search-container">
+                        <div class="search-input-wrapper">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="movie-search" placeholder="Search for a movie..." autocomplete="off">
+                            <button id="clear-search" class="clear-btn hidden">×</button>
+                        </div>
+                    </div>
+                    <div id="search-results" class="movie-list">
+                        <div class="search-prompt">
+                            <p>Search for any movie from IMDB</p>
+                            <p class="search-hint">Or try: "Dark Knight", "Inception", "Matrix"</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Friends View -->
+                <div id="friends-view" class="view">
+                    <div class="view-header">
+                        <h2>Friends</h2>
+                        <button id="add-demo-friends" class="btn-small">+ Add Demo Friends</button>
+                    </div>
+                    <div class="friends-tabs">
+                        <button class="tab-btn active" data-tab="activity">Activity</button>
+                        <button class="tab-btn" data-tab="friends-list">My Friends</button>
+                    </div>
+                    <div id="activity-tab" class="tab-content active">
+                        <div id="friends-activity" class="activity-feed">
+                            <div class="empty-state">
+                                <div class="empty-icon">👥</div>
+                                <h3>No friends yet</h3>
+                                <p>Add friends to see their movie ratings</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="friends-list-tab" class="tab-content">
+                        <div id="friends-list" class="friends-list">
+                            <div class="empty-state">
+                                <div class="empty-icon">👥</div>
+                                <h3>No friends yet</h3>
+                                <p>Click "Add Demo Friends" to try the social features</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Watchlist View -->
+                <div id="watchlist-view" class="view">
+                    <div class="view-header">
+                        <h2>Watchlist</h2>
+                        <span id="watchlist-count" class="count-badge">0</span>
+                    </div>
+                    <div id="watchlist-movies" class="movie-list">
+                        <div class="empty-state">
+                            <div class="empty-icon">🎯</div>
+                            <h3>Your watchlist is empty</h3>
+                            <p>Save movies you want to watch later</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile View -->
+                <div id="profile-view" class="view">
+                    <div class="profile-header">
+                        <div class="profile-avatar" id="profile-avatar-display">🎭</div>
+                        <h2 id="profile-name-display">Your Profile</h2>
+                        <p id="profile-username" class="profile-username">@username</p>
+                        <button id="edit-profile-btn" class="btn-small">Edit Profile</button>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-movies">0</div>
+                            <div class="stat-label">Movies Ranked</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="avg-score">-</div>
+                            <div class="stat-label">Avg Score</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="comparisons-made">0</div>
+                            <div class="stat-label">Comparisons</div>
+                        </div>
+                    </div>
+                    <div class="profile-section">
+                        <h3>Your Lists</h3>
+                        <div id="curated-lists" class="curated-lists">
+                            <p class="muted">Rate more movies to generate curated lists</p>
+                        </div>
+                    </div>
+                    <div class="profile-section">
+                        <h3>Taste Profile</h3>
+                        <div id="taste-profile" class="taste-profile">
+                            <p class="muted">Rate more movies to see your taste profile</p>
+                        </div>
+                    </div>
+                    <div class="profile-section">
+                        <h3>Top Genres</h3>
+                        <div id="top-genres" class="genre-list">
+                            <p class="muted">Rate more movies to see your preferences</p>
+                        </div>
+                    </div>
+                    <div class="profile-section">
+                        <h3>Rating Distribution</h3>
+                        <div id="rating-distribution" class="rating-distribution">
+                            <p class="muted">Rate movies to see your distribution</p>
+                        </div>
+                    </div>
+                    <div class="profile-section">
+                        <h3>Decade Preferences</h3>
+                        <div id="decade-preferences" class="decade-list">
+                            <p class="muted">Rate more movies to see decade preferences</p>
+                        </div>
+                    </div>
+                    <div class="profile-section">
+                        <h3>Share Your Rankings</h3>
+                        <div class="share-buttons">
+                            <button id="share-top-movies" class="setting-btn">
+                                <span>📤</span> Share Top 5 Movies
+                            </button>
+                            <button id="copy-profile-link" class="setting-btn">
+                                <span>🔗</span> Copy Profile Link
+                            </button>
+                        </div>
+                    </div>
+                    <div class="profile-section">
+                        <h3>Settings</h3>
+                        <div class="settings-list">
+                            <button id="setup-api" class="setting-btn">
+                                <span>🔑</span> Setup IMDB API Key
+                            </button>
+                            <button id="export-data" class="setting-btn">
+                                <span>📤</span> Export Data
+                            </button>
+                            <button id="import-data" class="setting-btn">
+                                <span>📥</span> Import Data
+                            </button>
+                            <button id="clear-data" class="setting-btn danger">
+                                <span>🗑️</span> Clear All Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Bottom Navigation -->
+            <nav class="bottom-nav">
+                <button class="nav-btn active" data-view="list-view">
+                    <span class="nav-icon">📋</span>
+                    <span class="nav-label">Rankings</span>
+                </button>
+                <button class="nav-btn" data-view="friends-view">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-label">Friends</span>
+                </button>
+                <button class="nav-btn add-btn" data-view="search-view">
+                    <span class="nav-icon">+</span>
+                </button>
+                <button class="nav-btn" data-view="watchlist-view">
+                    <span class="nav-icon">🎯</span>
+                    <span class="nav-label">Watchlist</span>
+                </button>
+                <button class="nav-btn" data-view="profile-view">
+                    <span class="nav-icon">👤</span>
+                    <span class="nav-label">Profile</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- Comparison Modal -->
+        <div id="comparison-modal" class="modal">
+            <div class="modal-content comparison-content">
+                <div class="comparison-header">
+                    <h2>How does it compare?</h2>
+                    <p class="comparison-subtitle">Select which movie you prefer</p>
+                </div>
+                <div class="comparison-progress">
+                    <div class="progress-bar">
+                        <div id="comparison-progress-fill" class="progress-fill"></div>
+                    </div>
+                    <span id="comparison-count">1 of 5</span>
+                </div>
+                <div class="comparison-cards">
+                    <div class="comparison-card" id="new-movie-card">
+                        <img id="new-movie-poster" src="" alt="">
+                        <h3 id="new-movie-title">New Movie</h3>
+                        <p id="new-movie-year">2024</p>
+                    </div>
+                    <div class="vs-badge">VS</div>
+                    <div class="comparison-card" id="compare-movie-card">
+                        <img id="compare-movie-poster" src="" alt="">
+                        <h3 id="compare-movie-title">Compare Movie</h3>
+                        <p id="compare-movie-year">2023</p>
+                        <div class="current-score" id="compare-movie-score">8.5</div>
+                    </div>
+                </div>
+                <div class="comparison-buttons">
+                    <button id="prefer-new" class="compare-btn prefer-left">
+                        <span class="btn-label">I prefer the new one</span>
+                    </button>
+                    <button id="prefer-equal" class="compare-btn prefer-equal">
+                        <span class="btn-label">About equal</span>
+                    </button>
+                    <button id="prefer-existing" class="compare-btn prefer-right">
+                        <span class="btn-label">I prefer the other</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Initial Rating Modal -->
+        <div id="initial-rating-modal" class="modal">
+            <div class="modal-content">
+                <button class="modal-close" id="close-initial-rating">×</button>
+                <div class="initial-rating-content">
+                    <img id="initial-movie-poster" src="" alt="" class="modal-poster">
+                    <h2 id="initial-movie-title">Movie Title</h2>
+                    <p id="initial-movie-year" class="movie-year">2024</p>
+                    <p class="rating-prompt">What did you think?</p>
+                    <div class="initial-rating-buttons">
+                        <button class="rating-btn liked" data-rating="liked">
+                            <span class="rating-icon">😍</span>
+                            <span class="rating-label">I liked it!</span>
+                        </button>
+                        <button class="rating-btn fine" data-rating="fine">
+                            <span class="rating-icon">😐</span>
+                            <span class="rating-label">It was fine</span>
+                        </button>
+                        <button class="rating-btn disliked" data-rating="disliked">
+                            <span class="rating-icon">😕</span>
+                            <span class="rating-label">Didn't like it</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Movie Detail Modal -->
+        <div id="movie-detail-modal" class="modal">
+            <div class="modal-content movie-detail-content">
+                <button class="modal-close" id="close-movie-detail">×</button>
+                <div class="movie-detail-header">
+                    <img id="detail-poster" src="" alt="" class="detail-poster">
+                    <div class="detail-info">
+                        <h2 id="detail-title">Movie Title</h2>
+                        <p id="detail-year" class="detail-meta"></p>
+                        <p id="detail-genres" class="detail-genres"></p>
+                    </div>
+                </div>
+                <div class="detail-score-section">
+                    <div class="your-score">
+                        <span class="score-label">Your Score</span>
+                        <span id="detail-score" class="score-value">8.5</span>
+                    </div>
+                    <div class="score-rank">
+                        <span class="score-label">Rank</span>
+                        <span id="detail-rank" class="rank-value">#5</span>
+                    </div>
+                    <div class="friends-score" id="friends-score-section" style="display: none;">
+                        <span class="score-label">Friends Avg</span>
+                        <span id="detail-friends-score" class="friends-score-value">-</span>
+                    </div>
+                </div>
+                <div id="movie-tags" class="movie-tags"></div>
+                <p id="detail-overview" class="detail-overview"></p>
+                <div id="movie-notes-display" class="movie-notes-display" style="display: none;">
+                    <h4>Your Notes</h4>
+                    <p id="detail-notes"></p>
+                </div>
+                <div class="detail-actions">
+                    <button id="add-notes-btn" class="btn-secondary">Add Notes</button>
+                    <button id="recompare-btn" class="btn-secondary">Re-compare</button>
+                </div>
+                <div class="detail-actions-secondary">
+                    <button id="share-movie-btn" class="btn-outline">Share</button>
+                    <button id="remove-movie-btn" class="btn-danger">Remove</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Key Modal -->
+        <div id="api-key-modal" class="modal">
+            <div class="modal-content">
+                <button class="modal-close" id="close-api-modal">×</button>
+                <div class="api-key-content">
+                    <h2>Setup IMDB API Key</h2>
+                    <p class="api-instructions">Get your free API key from <a href="https://www.omdbapi.com/apikey.aspx" target="_blank" rel="noopener">omdbapi.com</a> (uses IMDB data)</p>
+                    <div class="api-input-wrapper">
+                        <input type="text" id="api-key-input" placeholder="Paste your API key here">
+                    </div>
+                    <div class="api-status" id="api-status"></div>
+                    <button id="save-api-key" class="btn-primary">Save API Key</button>
+                    <p class="api-note">Without an API key, the app uses demo movies only.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Edit Modal -->
+        <div id="profile-edit-modal" class="modal">
+            <div class="modal-content">
+                <button class="modal-close" id="close-profile-edit">×</button>
+                <div class="profile-edit-content">
+                    <h2>Edit Profile</h2>
+                    <div class="form-group">
+                        <label>Avatar</label>
+                        <div class="avatar-picker">
+                            <button class="avatar-option" data-avatar="🎬">🎬</button>
+                            <button class="avatar-option" data-avatar="🎭">🎭</button>
+                            <button class="avatar-option" data-avatar="🍿">🍿</button>
+                            <button class="avatar-option" data-avatar="🎥">🎥</button>
+                            <button class="avatar-option" data-avatar="📽️">📽️</button>
+                            <button class="avatar-option" data-avatar="🎞️">🎞️</button>
+                            <button class="avatar-option" data-avatar="🌟">🌟</button>
+                            <button class="avatar-option" data-avatar="🎪">🎪</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-display-name">Display Name</label>
+                        <input type="text" id="edit-display-name" placeholder="Your name" maxlength="30">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-username">Username</label>
+                        <input type="text" id="edit-username" placeholder="username" maxlength="20">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-bio">Bio</label>
+                        <textarea id="edit-bio" placeholder="Tell us about your movie taste..." maxlength="150"></textarea>
+                    </div>
+                    <button id="save-profile" class="btn-primary">Save Profile</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Movie Notes Modal -->
+        <div id="movie-notes-modal" class="modal">
+            <div class="modal-content">
+                <button class="modal-close" id="close-movie-notes">×</button>
+                <div class="movie-notes-content">
+                    <h2>Add Notes</h2>
+                    <p id="notes-movie-title" class="notes-subtitle"></p>
+                    <div class="form-group">
+                        <label for="movie-notes-input">Your thoughts</label>
+                        <textarea id="movie-notes-input" placeholder="Write your review, memorable scenes, who you watched it with..." maxlength="500"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Tags</label>
+                        <div class="tag-picker">
+                            <button class="tag-option" data-tag="rewatchable">Rewatchable</button>
+                            <button class="tag-option" data-tag="emotional">Emotional</button>
+                            <button class="tag-option" data-tag="mind-bending">Mind-bending</button>
+                            <button class="tag-option" data-tag="feel-good">Feel Good</button>
+                            <button class="tag-option" data-tag="intense">Intense</button>
+                            <button class="tag-option" data-tag="classic">Classic</button>
+                        </div>
+                    </div>
+                    <button id="save-movie-notes" class="btn-primary">Save Notes</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Friend Profile Modal -->
+        <div id="friend-profile-modal" class="modal">
+            <div class="modal-content">
+                <button class="modal-close" id="close-friend-profile">×</button>
+                <div class="friend-profile-content">
+                    <div class="friend-profile-header">
+                        <div class="friend-avatar" id="friend-avatar">🎭</div>
+                        <h2 id="friend-name">Friend Name</h2>
+                        <p id="friend-bio" class="friend-bio"></p>
+                    </div>
+                    <div class="friend-stats">
+                        <div class="friend-stat">
+                            <span class="friend-stat-value" id="friend-movie-count">0</span>
+                            <span class="friend-stat-label">Movies</span>
+                        </div>
+                    </div>
+                    <h3>Their Top Movies</h3>
+                    <div id="friend-top-movies" class="friend-movies-list"></div>
+                    <button id="remove-friend-btn" class="btn-danger full-width">Remove Friend</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- List Detail Modal -->
+        <div id="list-detail-modal" class="modal">
+            <div class="modal-content">
+                <button class="modal-close" id="close-list-detail">×</button>
+                <div class="list-detail-content">
+                    <div class="list-detail-header">
+                        <span class="list-icon" id="list-detail-icon">🏆</span>
+                        <div>
+                            <h2 id="list-detail-title">List Title</h2>
+                            <p id="list-detail-description" class="muted"></p>
+                        </div>
+                    </div>
+                    <div id="list-detail-movies" class="list-movies"></div>
+                    <button id="share-list-btn" class="btn-primary full-width">Share List</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div id="toast-container"></div>
+    </div>
+
+    <input type="file" id="import-file" accept=".json" style="display: none;">
+
+    <script src="js/elo.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/movies.js"></script>
+    <script src="js/social.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        // Register service worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('SW registered:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.log('SW registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

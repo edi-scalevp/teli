@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teli Tests</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Monaco', 'Consolas', monospace;
+            background: #0f0f1a;
+            color: #e0e0e0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 { color: #6366f1; margin-bottom: 20px; }
+        .controls { margin-bottom: 20px; }
+        button {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover { background: #4f46e5; }
+        #output {
+            background: #1a1a2e;
+            padding: 20px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            font-size: 14px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        .pass { color: #22c55e; }
+        .fail { color: #ef4444; }
+        .summary {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 18px;
+        }
+        .summary.all-pass { background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; }
+        .summary.has-fail { background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Teli Test Suite</h1>
+
+    <div class="controls">
+        <button onclick="runTests()">Run All Tests</button>
+        <button onclick="clearOutput()">Clear</button>
+    </div>
+
+    <div id="output">Click "Run All Tests" to start...</div>
+    <div id="summary"></div>
+
+    <!-- Load app modules -->
+    <script src="js/elo.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/movies.js"></script>
+    <script src="js/social.js"></script>
+    <script src="js/tests.js"></script>
+
+    <script>
+        const output = document.getElementById('output');
+        const summary = document.getElementById('summary');
+
+        // Override console.log to show in page
+        const originalLog = console.log;
+        const originalError = console.error;
+
+        function runTests() {
+            output.innerHTML = '';
+            summary.innerHTML = '';
+            summary.className = 'summary';
+
+            console.log = function(...args) {
+                originalLog.apply(console, args);
+                const text = args.join(' ');
+                const span = document.createElement('span');
+                if (text.includes('✅')) {
+                    span.className = 'pass';
+                } else if (text.includes('❌')) {
+                    span.className = 'fail';
+                }
+                span.textContent = text + '\n';
+                output.appendChild(span);
+                output.scrollTop = output.scrollHeight;
+            };
+
+            console.error = function(...args) {
+                originalError.apply(console, args);
+                const span = document.createElement('span');
+                span.className = 'fail';
+                span.textContent = args.join(' ') + '\n';
+                output.appendChild(span);
+            };
+
+            const results = TeliTests.runAll();
+
+            // Show summary
+            summary.innerHTML = `<strong>${results.passed} passed</strong>, <strong>${results.failed} failed</strong>`;
+            summary.className = results.failed === 0 ? 'summary all-pass' : 'summary has-fail';
+
+            // Restore console
+            console.log = originalLog;
+            console.error = originalError;
+        }
+
+        function clearOutput() {
+            output.innerHTML = 'Click "Run All Tests" to start...';
+            summary.innerHTML = '';
+            summary.className = 'summary';
+        }
+    </script>
+</body>
+</html>
