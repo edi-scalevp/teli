@@ -1,0 +1,9 @@
+{
+  "hooks": {
+    "stop": [
+      {
+        "command": "echo '\n📝 Remember: Ask Claude to update CLAUDE.md before quitting!\n'"
+      }
+    ]
+  }
+}
